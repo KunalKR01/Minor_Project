@@ -51,21 +51,20 @@ async function summaryAgent(searchAgentAns, query) {
                     ]
                 })
             });
-
+        if (!response.ok) {
+            const responseText = response.text();
+            throw new Error(`${responseText}`);
+        }
         const rawData = await response.json();
 
-        if (!rawData) { throw new Error("No response from summary agent") }
-
-        const output = await rawData.candidates[0].content.parts[0].text;
-
+        const output = await rawData?.candidates[0]?.content?.parts[0]?.text;
 
         console.log("summaryAgent executed");
 
         return output;
     } catch (error) {
-
         console.log("Error in summary agent- " + error);
-        // need to find way what to do if fails
+        throw new Error();
     }
 }
 

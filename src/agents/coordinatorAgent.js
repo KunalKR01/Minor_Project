@@ -9,7 +9,6 @@ async function runPipeline(query) {
     // call all agents
     const searchAgentAns = await searchAgent(query);
     const summaryAgentAns = await summaryAgent(searchAgentAns, query);
-    console.log(summaryAgentAns);
 
     const validationAgentAns = await validationAgent(summaryAgentAns, query);
 

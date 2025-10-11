@@ -14,18 +14,17 @@ function tokenValidation(req, res, next) {  //need to use this middlware for eve
 
     const token = req.cookies.token; //will change for the cookie later
     if (!token) {
-        res.json({ message: "No user-token exists" });
+        throw {
+            type: "Unauthorized",
+            message: 'Authorization failed. No access token.',
+            status: 401
+        }
     }
     else {
-        // decode token and check is tokenValid
-        try {
-            const decodedToken = decodeToken(token);
-            req.userId = decodedToken.userId;
-            next();
-        } catch (error) {
-            console.log("error in isTokenExistsAndValid- " + error);
-            return res.json({ error: error });
-        }
+        // decode and check is tokenValid
+        const decodedToken = decodeToken(token);
+        req.userId = decodedToken.userId;
+        next();
     }
 }
 
@@ -37,21 +36,15 @@ function zodSign(req, res, next) {
 
 async function checkOTP(req, res, next) {
 
-    try {
-        const otp = req.body.otp;
-        if (!otp) {
-            res.json({ message: "Empty OTP" });
-        }
-        const signUpToken = req.query.token;
-        // get otp and token from the url and find the user in temp db
-        const result = await OTPServices.findinOTPModel(signUpToken, otp);
-        req.data = result;
-        console.log(req.data);
-        next();
-    } catch (error) {
-        console.log("error in checkOTP middleware- " + error);
-        res.json({ message: "Invalid OTP" })
+    const otp = req.body.otp;
+    if (!otp) {
+        throw { type: 'NotFound', message: "OTP is empty", status: 404 }
     }
+    const signUpToken = req.query.token;
+    // get otp and token from the url and find the user in temp db
+    const result = await OTPServices.findinOTPModel(signUpToken, otp); // if otp is wrong throw error which will be caught by global error middleware
+    req.data = result;
+    next();
 }
 
 module.exports = { tokenValidation, zodSign, checkOTP };

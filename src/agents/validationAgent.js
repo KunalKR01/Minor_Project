@@ -91,12 +91,13 @@ Return ONLY the JSON object.
                 })
             });
 
+        if (!response.ok) {
+            const responseText = response.text();
+            throw new Error(`${responseText}`);
+        }
         const output = await response.json();
         console.log("Output from vlaidation agent is- " + JSON.stringify(output));
 
-        if (!output) {
-            throw new Error("no reponse from validation agent");
-        }
         const validationAgentAns = output.candidates[0].content.parts[0].text;
 
 
@@ -105,7 +106,7 @@ Return ONLY the JSON object.
         return validationAgentAns;
     } catch (error) {
         console.log("Error in validation agent- " + error);
-        // need to find way for handling no response
+        throw new Error();
     }
 }
 

@@ -9,15 +9,13 @@ async function searchAgent(query) {
 
     try {
         const response = await fetch(url);
+        const responseText = await response.text();
 
         if (!response.ok) {
             // call gpt model for finding papers or may be in catch
-            throw new Error("No response from arxiv");
+            throw new Error(`${responseText}`)
         }
-        const xmlData = await response.text();
-        const jsonData = await parseStringPromise(xmlData);
-
-
+        const jsonData = await parseStringPromise(responseText);
         const searchAgentAns = jsonData.feed.entry.map(e => ({
             title: e.title[0],
             summary: e.summary[0],
@@ -33,7 +31,9 @@ async function searchAgent(query) {
 
 
     } catch (error) {
-        console.log("Error in arxiv search- " + error);
+        console.log("Error in arxiv search- ");
+        throw new Error();
+
     }
 
 }
